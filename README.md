@@ -1,4 +1,4 @@
-# Ollama Chat - Chatbot with Ollama
+# Ollama Chat Autonomous - Autonomous Ollama Chatbot
 
 This project implements an autonomous chat system using Ollama, where two artificial intelligence models interact with each other in a continuous conversation.
 
