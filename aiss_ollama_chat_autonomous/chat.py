@@ -1,10 +1,10 @@
-from aiss_ollama_chat.chat import Chat
+from aiss_ollama_chat.chat import Chat as OllamaChat
 
-class OllamaChatAutonomous:
+class Chat:
     def __init__(self, model1:str, model2:str, sysPrompt1:str, sysPrompt2:str, maxChatLength:int=20, userName:str="User", prevContextA:str=None, prevContextB:str=None):
         self.userName = userName
-        self.c1:Chat = Chat(model1, sysPrompt1, maxChatLength, userName, prevContextA)
-        self.c2:Chat = Chat(model2, sysPrompt2, maxChatLength, userName, prevContextB)
+        self.c1:OllamaChat = OllamaChat(model1, sysPrompt1, maxChatLength, userName, prevContextA)
+        self.c2:OllamaChat = OllamaChat(model2, sysPrompt2, maxChatLength, userName, prevContextB)
         self.lastMsg = " "
         self.operations = {
             "save": self._handleSave,
