@@ -19,17 +19,11 @@ The app allows two chatbots to communicate each other:
   - `A:` - Sends the next prompt only to model A.
   - `B:` - Sends the next prompt only to model B.
   - `AB:` - Sends the next prompt only to model A and B (no msg pass between models).
-- Allows recursive commands (e.g.: `A:save`, `B:rewind:2`)
-  - `exit` - Exits app with a backup save at run path.
-  - `save` - Stores a conversational context file named "context.json" at run path.
-  - `save:` - Stores a conversational context file at path inidicated next, related to run path.
-  - `restore` - Restores a conversational context file at "context.json" located at run path.
-  - `restore:` - Restores a conversational context file at path inidicated next, related to run path.
-  - `rewind` - Goes back to a previous turn.
-  - `rewind:` - Goes back an ammount of turns indicated next.
+- Adds every command functionality from Ollama-Chat
+- Allows recursive commands using standard Ollama-Chat commands (e.g.: `A:save`, `B:rewind:2`)
 - Flow control keyboard commands:
-  - `Cntrl+C` - Stops AUTO mode.
-  - `Cntrl+D` - Forces App exit (during input)
+  - `Cntrl+C` - Stops AUTO mode (if enabled).
+  - `3x Cntrl+C` - Forces App exit.
      
 ## 🛠 Requirements
 
@@ -81,6 +75,7 @@ ollama-chat-autonomous gemma3:12b-it-q8_0 gemma3:12b-it-q8_0 ./sysPrompt1.txt ./
 .
 ├── aiss_ollama_chat_autonomous/
 │   ├── __init__.py
+│   ├── FileIO.py
 │   ├── chat.py
 │   └── run.py
 ├── run.sh

@@ -1,11 +1,10 @@
 from aiss_ollama_chat.chat import Chat
-from aiss_ollama_chat.fileIO import FileIO
 
 class OllamaChatAutonomous:
-    def __init__(self, model1:str, model2:str, sysPrompt1:str, sysPrompt2:str, userName:str="User", maxChatLength:int=20):
+    def __init__(self, model1:str, model2:str, sysPrompt1:str, sysPrompt2:str, maxChatLength:int=20, userName:str="User", prevContextA:str=None, prevContextB:str=None):
         self.userName = userName
-        self.c1:Chat = Chat(model1, sysPrompt1, maxChatLength, userName)
-        self.c2:Chat = Chat(model2, sysPrompt2, maxChatLength, userName)
+        self.c1:Chat = Chat(model1, sysPrompt1, maxChatLength, userName, prevContextA)
+        self.c2:Chat = Chat(model2, sysPrompt2, maxChatLength, userName, prevContextB)
         self.lastMsg = " "
         self.operations = {
             "save": self._handleSave,
@@ -23,11 +22,14 @@ class OllamaChatAutonomous:
             turns -= 1
     
     def doRecursiveChat(self, prompt:str=None):
+        self.lastMsg = self.c2.getLastContextMsg()
         if prompt:
-            self.c1.chatHistory.append(self.c1.strMsg("user",prompt))
+            # self.c1.chatHistory.append(self.c1.strMsg("user",""))
+            self.c1.chatHistory.append(self.c1.strMsg("user",f"{self.userName}: {prompt}"))
         msg = self.c1.chat(self.lastMsg)
         if prompt:
-            self.c2.chatHistory.append(self.c2.strMsg("user",prompt))
+            # self.c2.chatHistory.append(self.c2.strMsg("user",""))
+            self.c2.chatHistory.append(self.c2.strMsg("user",f"{self.userName}: {prompt}"))
         self.lastMsg = self.c2.chat(msg)
         return msg, self.lastMsg
 
@@ -64,7 +66,6 @@ class OllamaChatAutonomous:
         else:
             self.c1.chat("restore:context1.json")
             self.c2.chat("restore:context2.json")
-            self.chatHistory = FileIO.deserializeDict("./context.json")
             return "-- restored from ./context1.json and ./context2.json --\n\n"
 
     def _handleRewind(self, prompt: str) -> str:
@@ -90,7 +91,6 @@ class OllamaChatAutonomous:
         return f"{msg1}{msg2}"
     
     def _handleDefault(self, prompt):
-        self.lastMsg = self.c2.getLastContextMsg()
         msg1, msg2 = self.doRecursiveChat(prompt)
         return f"{msg1}{msg2}"
 
