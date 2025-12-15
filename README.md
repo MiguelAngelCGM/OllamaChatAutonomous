@@ -15,6 +15,12 @@ The app allows two chatbots to communicate each other:
 - Logs are saved to a json file
 - Autonomous and manual mode. Switch to manual with Cntrl+C (on auto).
 - Text commands to chat
+- Start-of-prompt text commands:
+  - `exit` - Exits. When used, the app makes a backup at "./logs/date_time" located at run path.
+  - `save` - Stores a conversational context file named "context1.json" and "context2.json" at run path.
+  - `restore` - Restores a conversational context file at  "context1.json" and "context2.json" located at run path.
+  - `rewind` - Goes back to a previous turn (both chats).
+  - `rewind:` - Goes back an ammount of turns indicated next (both chats).
   - `auto` - Starts autonomous mode.
   - `A:` - Sends the next prompt only to model A.
   - `B:` - Sends the next prompt only to model B.

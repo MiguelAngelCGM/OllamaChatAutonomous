@@ -1,12 +1,11 @@
-from aiss_ollama_chat.chat import Chat as OllamaChat
+from aiss_ollama_chat.chat import Chat
 
-class Chat:
-    def __init__(self, model1:str, model2:str, sysPrompt1:str, sysPrompt2:str, maxChatLength:int=20, userName:str="User", prevContextA:str=None, prevContextB:str=None):
+class ChatAutonomous:
+    def __init__(self, chatA:Chat, chatB:Chat, userName:str="user"):
         self.userName = userName
-        self.c1:OllamaChat = OllamaChat(model1, sysPrompt1, maxChatLength, userName, prevContextA)
-        self.c2:OllamaChat = OllamaChat(model2, sysPrompt2, maxChatLength, userName, prevContextB)
-        self.lastMsg = " "
-        self.operations = {
+        self.c1:chatA = chatA
+        self.c2:chatB = chatB
+        self.chatAutonomousOperations = {
             "save": self._handleSave,
             "restore": self._handleRestore,
             "rewind": self._handleRewind,
@@ -22,16 +21,11 @@ class Chat:
             turns -= 1
     
     def doRecursiveChat(self, prompt:str=None):
-        self.lastMsg = self.c2.getLastContextMsg()
-        if prompt:
-            # self.c1.chatHistory.append(self.c1.strMsg("user",""))
-            self.c1.chatHistory.append(self.c1.strMsg("user",f"{self.userName}: {prompt}"))
-        msg = self.c1.chat(self.lastMsg)
-        if prompt:
-            # self.c2.chatHistory.append(self.c2.strMsg("user",""))
-            self.c2.chatHistory.append(self.c2.strMsg("user",f"{self.userName}: {prompt}"))
-        self.lastMsg = self.c2.chat(msg)
-        return msg, self.lastMsg
+        if not prompt or prompt == "":
+            msg = self.c2.getLastContextMsg()
+        msg = self.c1.chat(prompt)
+        msg2 = self.c2.chat(msg)
+        return msg, msg2
 
     def doChatA(self, prompt):
         return self.c1.chat(prompt)
@@ -41,7 +35,7 @@ class Chat:
     
     def chat(self, prompt):
         try:
-            for operation, handler in self.operations.items():
+            for operation, handler in self.chatAutonomousOperations.items():
                 if prompt.startswith(operation):
                     return handler(prompt)
             return self._handleDefault(prompt)
@@ -49,24 +43,14 @@ class Chat:
             raise Exception(e)
 
     def _handleSave(self, prompt: str) -> str:
-        if prompt.startswith("save:"):
-            # path = prompt[len("save:"):].strip()
-            # return f"-- serialized to {path} --\n\n"
-            raise Exception("Unimplemented")
-        else:
-            self.c1.chat("save:context1.json")
-            self.c2.chat("save:context2.json")
-            return "-- serialized to ./context1.json and ./context2.json --\n\n"
+        self.c1.chat("save:context1.json")
+        self.c2.chat("save:context2.json")
+        return "-- serialized to ./context1.json and ./context2.json --\n\n"
 
     def _handleRestore(self, prompt: str) -> str:
-        if prompt.startswith("restore:"):
-            # path = prompt[len("restore:"):].strip()
-            # return f"-- restored from {path} --\n\n"
-            raise Exception("Unimplemented")
-        else:
-            self.c1.chat("restore:context1.json")
-            self.c2.chat("restore:context2.json")
-            return "-- restored from ./context1.json and ./context2.json --\n\n"
+        self.c1.chat("restore:context1.json")
+        self.c2.chat("restore:context2.json")
+        return "-- restored from ./context1.json and ./context2.json --\n\n"
 
     def _handleRewind(self, prompt: str) -> str:
         if prompt.startswith("rewind:"):
@@ -78,6 +62,7 @@ class Chat:
             self.c1.rewind(1)
             self.c2.rewind(1)
             return "-- rewind AB: 1 --\n\n"
+        
         
     def _handleChatA(self, prompt):
         return f"{self.doChatA(prompt[len('A:'):].strip())}"
