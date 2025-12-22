@@ -20,7 +20,7 @@ def main():
         global FORCE_EXIT
         if AUTO:
             print("\nAUTO OFF\n")
-            AUTO = None
+            AUTO = False
             AUTO_TURNS = 0
         elif FORCE_EXIT == 0:
             print("\n--FORCE EXIT--")
@@ -57,8 +57,8 @@ def main():
                     help='Previous context in a JSON format for model (B) (default: None)')
     parser.add_argument('--startAuto', '-a', type=str, default="False",
                     help='(default: False)')
-    parser.add_argument('--autoFirstMsg', type=str, default="",
-                    help='(default: "")')
+    parser.add_argument('--autoFirstMsg', type=str, default=None,
+                    help='(default: None)')
     parser.add_argument('--autoTurns', '-t', type=int, default=0,
                     help='(default: 0)')
     args = parser.parse_args()
@@ -68,13 +68,12 @@ def main():
         
     chat = ChatAutonomous(chatA, chatB, args.userName)
 
-    autoFirstMsg = args.autoFirstMsg
     global AUTO
     global AUTO_TURNS
     AUTO = (args.startAuto == "True")
     AUTO_TURNS = args.autoTurns
-    print(args.autoFirstMsg)
     prompt = " "
+    autoFirstMsg = args.autoFirstMsg
 
     while True:
         global FORCE_EXIT
@@ -93,20 +92,20 @@ def main():
                 if prompt.endswith("RETRY"):
                     continue
                 elif prompt.startswith("auto"):
+                    AUTO = True
                     if prompt.startswith("auto:"):
-                        AUTO = True
                         try:
                             parser = ParameterParser(prompt[len("auto:"):].strip(), [int, str])
-                            turns = next()
-                            msg = next()
+                            turns = parser.next()
+                            msg = parser.next()
                             AUTO_TURNS = turns
-                            if msg != "":
-                                chat.doRecursiveChat(msg)
+                            if msg and msg != "":
+                                msg1, msg2 = chat.doRecursiveChat(msg)
+                                print(f"{msg1}{msg2}")
                         except Exception as e:
                             print(f"\n\n{e}")
                     else:
                         AUTO_TURNS = 0
-                    continue
                 elif prompt.startswith("exit"):
                     print("Good bye!")
                     break

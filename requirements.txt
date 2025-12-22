@@ -1,2 +1,3 @@
 ollama
-git+https://github.com/AIShinyStardust/OllamaChat.git
+git+https://github.com/MiguelAngelCGM/OllamaChat.git
+git+https://github.com/MiguelAngelCGM/ParameterParser.git

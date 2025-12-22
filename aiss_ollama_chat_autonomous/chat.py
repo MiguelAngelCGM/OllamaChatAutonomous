@@ -1,4 +1,5 @@
 from aiss_ollama_chat.chat import Chat
+from aiss_parameter_parser_parameter_parser import ParameterParser
 
 class ChatAutonomous:
     def __init__(self, chatA:Chat, chatB:Chat, userName:str="user"):
@@ -6,12 +7,9 @@ class ChatAutonomous:
         self.c1:chatA = chatA
         self.c2:chatB = chatB
         self.chatAutonomousOperations = {
-            "save": self._handleSave,
-            "restore": self._handleRestore,
-            "rewind": self._handleRewind,
-            "A:": self._handleChatA,
-            "B:": self._handleChatB,
-            "AB:": self._handleChatAB
+            "_A": self._handleChatA,
+            "_B": self._handleChatB,
+            "_AB": self._handleChatAB
         }
 
     def autoChat(self, turns):
@@ -22,7 +20,7 @@ class ChatAutonomous:
     
     def doRecursiveChat(self, prompt:str=None):
         if not prompt or prompt == "":
-            msg = self.c2.getLastContextMsg()
+            prompt = self.c2.getLastContextMsg()
         msg = self.c1.chat(prompt)
         msg2 = self.c2.chat(msg)
         return msg, msg2
@@ -35,12 +33,12 @@ class ChatAutonomous:
     
     def chat(self, prompt):
         try:
-            for operation, handler in self.chatAutonomousOperations.items():
-                if prompt.startswith(operation):
-                    return handler(prompt)
+            parser = ParameterParser(prompt, [str,str])
+            op = parser.next()
+            params = parser.next()
+            return self.chatAutonomousOperations[op](params)
+        except (ValueError, KeyError):
             return self._handleDefault(prompt)
-        except Exception as e:
-            raise Exception(e)
 
     def _handleSave(self, prompt: str) -> str:
         self.c1.chat("save:context1.json")
@@ -62,7 +60,6 @@ class ChatAutonomous:
             self.c1.rewind(1)
             self.c2.rewind(1)
             return "-- rewind AB: 1 --\n\n"
-        
         
     def _handleChatA(self, prompt):
         return f"{self.doChatA(prompt[len('A:'):].strip())}"

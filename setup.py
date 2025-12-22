@@ -2,11 +2,14 @@ from setuptools import setup, find_packages
 
 setup(
     name="aiss_ollama_chat_autonomous",
-    version="0.2.0",
+    version="0.5.0",
     packages=find_packages(),
     install_requires=[
         "ollama",
-        "aiss_ollama_chat"
+        "aiss_ollama_chat @ git+https://github.com/MiguelAngelCGM/OllamaChat",
+        "aiss_parameter_parser @ git+https://github.com/MiguelAngelCGM/ParameterParser",
+        "aiss_file @ git+https://github.com/MiguelAngelCGM/File"
+        
     ],
     entry_points={
         "console_scripts": [
